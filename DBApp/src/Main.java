@@ -6,7 +6,7 @@ public class Main {
         Database.username = "root";
         Database.password = "password";
         Database.port = 13306;
-        Database.database = "java23";
+        Database.database = "jd23_pokemon_java";
 
         Connection connection = Database.getConnection();
         if (connection == null) {
@@ -16,28 +16,31 @@ public class Main {
         }
 
         try {
-            Statement statement = connection.createStatement();
 
-            // executeQuery används när man kör frågor som ger ett svar
-            // t.ex. SHOW DATABASES; DESCRIBE <table>; SELECT mf
-            ResultSet result = statement.executeQuery("SHOW DATABASES");
-            while(result.next()) {
-                System.out.println(result.getString("Database"));
+            String[] queries = {
+                    "CREATE TABLE IF NOT EXISTS Pokemons (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(200) UNIQUE NOT NULL, weight DECIMAL(5,2) NOT NULL, height DECIMAL(5,2) NOT NULL, abillities VARCHAR(50) NOT NULL, PRIMARY KEY(id));",
+                    "CREATE TABLE IF NOT EXISTS Users (id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, email VARCHAR(255) NOT NULL UNIQUE, name VARCHAR(255) NOT NULL, password VARCHAR(255) NULL, lastLogin DATETIME NULL, createdDate DATE NOT NULL DEFAULT CURRENT_DATE, newsletter ENUM('Yes', 'No') DEFAULT 'No' )",
+                    "CREATE TABLE IF NOT EXISTS UserPokemons (id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, usersId INT NOT NULL, pokemonsId INT NOT NULL)"
+            };
+
+            Statement statement = connection.createStatement();
+            for(int i=0; i< queries.length; i++) {
+                int result = statement.executeUpdate(queries[i]);
             }
 
-            // executeUpdate används när man ändrar data eller schema
-            // t.ex. CREATE TABLE ..., INSERT INTO... mf
-            int numberOfChangedRows = statement.executeUpdate("INSERT INTO \n" +
-                    "\tContacts\n" +
-                    "(\n" +
-                    "\tname, \n" +
-                    "\temail\n" +
-                    ")\n" +
-                    "VALUES\n" +
-                    "(\n" +
-                    "\t\"Martin\",\n" +
-                    "\t\"martin.haagen@gritacademy.se\"\n" +
-                    ")");
+            /*
+
+            String query = "SELECT id, email, name FROM Contacts WHERE id < 100";
+            result = statement.executeQuery(query);
+            while(result.next()) {
+                System.out.printf(
+                        "%d: %s, %s \n",
+                        result.getInt("id"),
+                        result.getString(2),
+                        result.getString("email"));
+
+            }
+            */
 
         } catch(SQLException ex) {
             Database.PrintSQLException(ex);
