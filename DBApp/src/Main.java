@@ -1,3 +1,4 @@
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.*;
 import java.util.Scanner;
@@ -8,6 +9,61 @@ public class Main {
         //demoFromTheLessons();
 
         pokemonExcercise();
+
+    }
+
+    private static void updateUserLastLogin(Connection conn, Scanner scanner) {
+
+        System.out.print("Ange användarens epost: ");
+        String email = scanner.nextLine();
+
+        String sql = "UPDATE Users SET lastLogin = CURRENT_TIMESTAMP WHERE email = '" + email + "'";
+
+        try {
+
+            Statement statement = conn.createStatement();
+            if(statement.executeUpdate(sql) > 0) {
+                System.out.println("Användaren uppdaterades!");
+                log(conn, null, "Användaren " + email + " loggade in");
+            } else {
+                System.out.println("Ingen användare uppdaterades!");
+            }
+
+        } catch(SQLException ex) {
+            Database.PrintSQLException(ex);
+        }
+
+    }
+
+    private static void deleteUser(Connection conn, Scanner scanner) {
+
+        System.out.print("Skriv användarens epost-adress: ");
+        String email = scanner.nextLine();
+
+        try {
+            String sql = "SELECT id FROM Users WHERE email = '" + email + "'";
+            Statement statement = conn.createStatement();
+
+            ResultSet rs = statement.executeQuery(sql);
+            if(!rs.next()) {
+                System.out.println("Användaren kunde inte hittas!");
+                return;
+            }
+            int id = rs.getInt("id");
+
+            sql = "DELETE FROM UserPokemons WHERE usersId = " + id;
+            statement.executeUpdate(sql);
+
+            sql = "DELETE FROM Users WHERE id = " + id;
+            statement.executeUpdate(sql);
+            log(conn, ""+id, "Användaren " + email + " raderades!");
+            System.out.println("Användaren raderades!");
+
+        } catch (SQLException ex) {
+            Database.PrintSQLException(ex);
+        }
+
+
 
     }
 
@@ -25,51 +81,24 @@ public class Main {
             return;
         }
 
-        try {
+        Scanner scanner = new Scanner(System.in);
+        String input = "";
 
-            String sql = "SELECT * FROM Pokemons WHERE height > 1.0";
-            System.out.println(sql);
-            Statement statement = connection.createStatement();
-            ResultSet result = statement.executeQuery(sql);
-            System.out.println("Pokemons > 1.0");
-            while(result.next()) {
-                System.out.println(result.getString("name"));
+        do {
+            System.out.println("1. Uppdatera användarens inloggningstid");
+            System.out.println("2. Radera en användare");
+            System.out.println("99. Avsluta");
+            System.out.println("Välj vad du vill göra:");
+            input = scanner.nextLine();
+            switch (input) {
+                case "1":
+                    updateUserLastLogin(connection, scanner);
+                    break;
+                case "2":
+                    deleteUser(connection, scanner);
+                    break;
             }
-            System.out.println("\nSenast skapade användare");
-            sql = "SELECT name, createdDate FROM Users ORDER BY createdDate DESC";
-            result = statement.executeQuery(sql);
-            while(result.next()) {
-                System.out.print(result.getString("name"));
-                System.out.println(" " + result.getDate("createdDate"));
-            }
-
-            sql = "SELECT * FROM Users ORDER BY lastLogin DESC LIMIT 1";
-            result = statement.executeQuery(sql);
-            if(!result.next()) {
-                return;
-            }
-            int usersId = result.getInt("id");
-
-            sql = "SELECT * FROM UserPokemons WHERE usersId = " + usersId;
-            result = statement.executeQuery(sql);
-            String in = "";
-            while(result.next()) {
-                if(in.length() != 0) {
-                    in += ", ";
-                }
-                in += result.getInt("pokemonsId");
-            }
-            if (in.isEmpty()) return;
-            sql = "SELECT * FROM Pokemons WHERE Id IN (" + in + ")";
-            System.out.println(sql);
-            result = statement.executeQuery(sql);
-            while(result.next()) {
-                System.out.println(result.getString("name"));
-            }
-
-        } catch(SQLException ex) {
-            Database.PrintSQLException(ex);
-        }
+        } while(!input.equals("99"));
 
         try {
             connection.close();
@@ -137,4 +166,17 @@ public class Main {
         }
 
     }
+
+    private static void log(Connection conn, String userId, String message) {
+        try {
+            String user = (userId == null || userId.isEmpty()) ? "NULL" : userId;
+            Statement statement = conn.createStatement();
+            String sql = "INSERT INTO Log SET usersId = " + user + ", message = '" + message + "'";
+            //System.out.println(sql);
+            statement.executeUpdate(sql);
+        } catch(SQLException ex) {
+            Database.PrintSQLException(ex);
+        }
+    }
+
 }
