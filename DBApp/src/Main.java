@@ -56,7 +56,9 @@ public class Main {
 
             sql = "DELETE FROM Users WHERE id = " + id;
             statement.executeUpdate(sql);
+
             log(conn, ""+id, "Användaren " + email + " raderades!");
+
             System.out.println("Användaren raderades!");
 
         } catch (SQLException ex) {
