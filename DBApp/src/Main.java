@@ -2,6 +2,7 @@ import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.*;
 import java.util.Scanner;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class Main {
     public static void main(String[] args) {
@@ -85,7 +86,7 @@ public class Main {
             System.out.println("Prepared Statement");
             sql = "SELECT id, name FROM Contacts WHERE email = ?";
             String sql2 = "INSERT INTO Contacts (name, email, phone) VALUES (?, ?, ?)";
-            
+
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, email);
             rs = ps.executeQuery();
@@ -100,10 +101,21 @@ public class Main {
 
     private static void pokemonExcercise() {
 
+        /*
         String username = (System.getenv("DBUSER") != null ? System.getenv("DBUSER") : "root");
         String password = (System.getenv("DBPASS") != null ? System.getenv("DBPASS") : "password");
+        */
 
-        //System.out.println("Användarnamnet är: " + username);
+        Dotenv dotenv = Dotenv.load();
+        String username = (dotenv.get("DBUSER") != null ? dotenv.get("DBUSER") : "root");
+        String password = (dotenv.get("DBPASS") != null ? dotenv.get("DBPASS") : "password");
+
+        //System.out.println("Hashat lösenord: " + Hashing.Encrypt("Martin"));
+        String passwordDB="61b0ef0f6bf0497ad15563e37dfe79baee84a07846bc0118466d09555ef7785f58e369af71b802b63c87beb3d4ffb3a8";
+        System.out.printf("Inloggning status: %b\n", Hashing.Verify("Martin", passwordDB));
+
+        System.out.println("Användarnamnet är: " + username);
+        System.out.println("Lösenordet är: " + password);
 
         Database.username = username;
         Database.password = password;
