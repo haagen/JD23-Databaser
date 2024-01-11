@@ -64,17 +64,51 @@ public class Main {
         } catch (SQLException ex) {
             Database.PrintSQLException(ex);
         }
+    }
 
+    private static void sqlInjection(Connection connection, Scanner scanner) {
 
+        System.out.print("Ange epost-adressen på användaren du söker efter: ");
+        String email = scanner.nextLine();
 
+        // "Dynamisk" SQL
+        String sql = "SELECT id, name FROM Contacts WHERE email = '" + email + "'";
+        System.out.println("Dynamisk SQL: " + sql);
+
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(sql);
+            while(rs.next()) {
+                System.out.println(rs.getString("name"));
+            }
+
+            System.out.println("Prepared Statement");
+            sql = "SELECT id, name FROM Contacts WHERE email = ?";
+            String sql2 = "INSERT INTO Contacts (name, email, phone) VALUES (?, ?, ?)";
+            
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, email);
+            rs = ps.executeQuery();
+            while(rs.next()) {
+                System.out.println(rs.getString("name"));
+            }
+
+        } catch (SQLException ex) {
+            Database.PrintSQLException(ex);
+        }
     }
 
     private static void pokemonExcercise() {
 
-        Database.username = "root";
-        Database.password = "password";
+        String username = (System.getenv("DBUSER") != null ? System.getenv("DBUSER") : "root");
+        String password = (System.getenv("DBPASS") != null ? System.getenv("DBPASS") : "password");
+
+        //System.out.println("Användarnamnet är: " + username);
+
+        Database.username = username;
+        Database.password = password;
         Database.port = 13306;
-        Database.database = "jd23_pokemon";
+        Database.database = "java23";
 
         Connection connection = Database.getConnection();
         if (connection == null) {
@@ -89,6 +123,7 @@ public class Main {
         do {
             System.out.println("1. Uppdatera användarens inloggningstid");
             System.out.println("2. Radera en användare");
+            System.out.println("3. Exempel på SQL-injection");
             System.out.println("99. Avsluta");
             System.out.println("Välj vad du vill göra:");
             input = scanner.nextLine();
@@ -98,6 +133,9 @@ public class Main {
                     break;
                 case "2":
                     deleteUser(connection, scanner);
+                    break;
+                case "3":
+                    sqlInjection(connection, scanner);
                     break;
             }
         } while(!input.equals("99"));

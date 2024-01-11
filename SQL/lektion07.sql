@@ -1,0 +1,13 @@
+SHOW DATABASES;
+USE java23;
+
+SHOW TABLES;
+
+DESCRIBE Contacts;
+DESCRIBE Companys;
+DESCRIBE Employees;
+
+SELECT * FROM Contacts;
+
+
+SELECT name FROM Contacts UNION SHOW TABLES;
