@@ -99,6 +99,33 @@ public class Main {
         }
     }
 
+    public static void modelExamples() {
+
+        try {
+            Contact anna = new Contact(1);
+            anna.print();
+
+            Contact sture = new Contact("email3");
+            sture.print();
+            sture.setEmail("En Ny Email");
+            //sture.save();
+            //sture.print();
+
+            Contact salim = new Contact();
+            salim.setName("Salim");
+            salim.setEmail("UniqueEmailToSalim");
+            salim.setPhone("phone1234");
+            salim.save();
+            salim.print();
+            salim.delete();
+            salim.print();
+
+        } catch(SQLException ex) {
+            Database.PrintSQLException(ex);
+        }
+
+    }
+
     private static void pokemonExcercise() {
 
         /*
@@ -136,6 +163,7 @@ public class Main {
             System.out.println("1. Uppdatera användarens inloggningstid");
             System.out.println("2. Radera en användare");
             System.out.println("3. Exempel på SQL-injection");
+            System.out.println("4. Kör \"modell\" exempel");
             System.out.println("99. Avsluta");
             System.out.println("Välj vad du vill göra:");
             input = scanner.nextLine();
@@ -148,6 +176,9 @@ public class Main {
                     break;
                 case "3":
                     sqlInjection(connection, scanner);
+                    break;
+                case "4":
+                    modelExamples();
                     break;
             }
         } while(!input.equals("99"));
