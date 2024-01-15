@@ -8,6 +8,7 @@ DESCRIBE Companys;
 DESCRIBE Employees;
 
 SELECT * FROM Contacts;
+DELETE FROM Contacts WHERE id = 30;
 
 
 SELECT name FROM Contacts UNION SHOW TABLES;
